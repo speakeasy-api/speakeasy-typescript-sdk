@@ -10,12 +10,6 @@ jest.mock("../../src/transport", () => ({
 
 describe("Simple Express Server", () => {
   describe("with an initalized speakeasy instance", () => {
-    beforeEach(() => {
-      process.env.SPEAKEASY_SERVER_URL = "";
-    });
-    afterEach(() => {
-      process.env.SPEAKEASY_SERVER_URL = undefined;
-    });
     it("properly calls transport once", () => {
       init({ apiKey: "" });
       const app = createSimpleExpressApp();
