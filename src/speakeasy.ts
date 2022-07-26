@@ -3,7 +3,7 @@ import { outputError } from "./error";
 
 let speakeasyInstance: SpeakeasyClient | null = null;
 
-export function init(config: Config): SpeakeasyClient {
+export function init(config: Config): SpeakeasyClient | null {
   if (speakeasyInstance != null) {
     outputError(
       "Speakeasy has already been initialized, skipping initialization"
@@ -11,7 +11,12 @@ export function init(config: Config): SpeakeasyClient {
     return speakeasyInstance;
   }
 
-  speakeasyInstance = new SpeakeasyClient(config);
+  try {
+    speakeasyInstance = new SpeakeasyClient(config);
+  } catch (err: any) {
+    outputError(err.message);
+    return null;
+  }
   return speakeasyInstance;
 }
 
