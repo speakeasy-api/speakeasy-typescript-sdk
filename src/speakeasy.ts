@@ -1,9 +1,9 @@
-import { Config, SpeakeasyClient } from "./client";
+import { Config, SpeakeasySDK } from "./client";
 import { outputError } from "./error";
 
-let speakeasyInstance: SpeakeasyClient | null = null;
+let speakeasyInstance: SpeakeasySDK | null = null;
 
-export function init(config: Config): SpeakeasyClient | null {
+export function init(config: Config): SpeakeasySDK | null {
   if (speakeasyInstance != null) {
     outputError(
       "Speakeasy has already been initialized, skipping initialization"
@@ -12,7 +12,7 @@ export function init(config: Config): SpeakeasyClient | null {
   }
 
   try {
-    speakeasyInstance = new SpeakeasyClient(config);
+    speakeasyInstance = new SpeakeasySDK(config);
   } catch (err: any) {
     outputError(err.message);
     return null;
@@ -20,6 +20,6 @@ export function init(config: Config): SpeakeasyClient | null {
   return speakeasyInstance;
 }
 
-export function getInstance(): SpeakeasyClient | null {
+export function getInstance(): SpeakeasySDK | null {
   return speakeasyInstance;
 }

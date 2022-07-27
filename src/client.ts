@@ -1,10 +1,10 @@
-const DEFAULT_SPEAKEASY_SERVER_URL = "grpc.speakeasyapi.dev:443"
+const DEFAULT_SPEAKEASY_SERVER_URL = "grpc.speakeasyapi.dev:443";
 
 export type Config = {
   apiKey: string;
 };
 
-export class SpeakeasyClient {
+export class SpeakeasySDK {
   apiKey: string;
   serverUrl: string;
 
@@ -17,10 +17,10 @@ export class SpeakeasyClient {
     this.apiKey = config.apiKey;
 
     const serverUrl = process.env.SPEAKEASY_SERVER_URL;
-    if (serverUrl == null) {
-      this.serverUrl = DEFAULT_SPEAKEASY_SERVER_URL;
-    } else {
+    if (serverUrl) {
       this.serverUrl = serverUrl;
+    } else {
+      this.serverUrl = DEFAULT_SPEAKEASY_SERVER_URL;
     }
   }
 }

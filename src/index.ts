@@ -1,1 +1,1 @@
-export { SpeakeasyClient } from "./client";
+export { SpeakeasySDK } from "./client";
