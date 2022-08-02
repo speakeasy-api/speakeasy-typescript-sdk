@@ -72,7 +72,6 @@ export function expressMiddleware() {
         additionalData.responseText = responseBuffer.toString("utf8");
         additionalData.responseSize = responseBuffer.byteLength;
       }
-      debugger;
 
       const har = Har.buildHar(req, res, additionalData);
       sendApiCall(har);
