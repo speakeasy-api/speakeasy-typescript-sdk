@@ -12,6 +12,7 @@ import {
   Header,
   QueryString,
   PostData,
+  Content,
 } from "har-format";
 
 // Cannot get TS to point to node's types, it's defaulting to types from the fetchApi
@@ -19,7 +20,10 @@ type Request = any;
 type Response = any;
 
 export type AdditionalData = {
-  bodyString?: string;
+  reqBodyString?: string;
+  reqBodyStringComment?: string;
+  responseText?: string;
+  responseSize?: number;
 };
 
 export class Har {
@@ -72,7 +76,7 @@ export class Har {
       startedDateTime: new Date().toISOString(), //TODO(kevinc): Get the actual start date time from the header
       time: 0, //TODO(kevinc): Compute the actual elapsed time
       request: this.buildRequest(req, additionalData),
-      response: this.buildResponse(res),
+      response: this.buildResponse(res, additionalData),
       cache: {},
       timings: {
         send: 0,
@@ -93,29 +97,36 @@ export class Har {
       cookies: this.buildRequestCookie(req),
       headers: this.buildRequestHeaders(req.headers),
       queryString: this.buildQueryString(req.url),
-      headersSize: -1, //TODO(kevinc): Header Size
-      bodySize: -1, //TODO(kevinc): Body Size
+      headersSize: this.buildRequestHeadersSize(req),
+      bodySize: -1,
     };
     const postData = this.buildRequestPostData(req, additionalData);
     if (postData != null) {
       result.postData = postData;
+      result.bodySize = postData.text?.length ?? -1;
     }
 
     return result;
   }
 
-  private buildResponse(res: Response): HarResponse {
-    return {
+  private buildResponse(
+    res: Response,
+    additionalData: AdditionalData
+  ): HarResponse {
+    const content = this.buildResponseContent(res, additionalData);
+    const result: HarResponse = {
       status: res.statusCode,
       statusText: res.statusMessage,
       httpVersion: "", // TODO(kevinc): Response HTTP version
       cookies: this.buildResponseCookie(res),
       headers: this.buildResponseHeaders(res.getHeaders()),
-      content: null as any, //TODO(kevinc): Build content
+      content: content,
       redirectURL: res.getHeader("location") ?? "",
-      headersSize: -1, //TODO(kevinc): Header Size
-      bodySize: -1, //TODO(kevinc): Body Size
+      headersSize: this.buildResponseHeadersSize(res.req, res),
+      bodySize: content.size,
     };
+
+    return result;
   }
 
   private buildRequestCookie(req: Request): Cookie[] {
@@ -137,14 +148,13 @@ export class Har {
     req: Request,
     additionalData: AdditionalData
   ): PostData | undefined {
-    if (additionalData.bodyString == undefined) {
+    if (additionalData.reqBodyString == undefined) {
       return undefined;
     }
     return {
-      // TODO(kevinc): Parse params separately from other posted data
-      // Currently assumes all posted types are not params
+      // We don't parse the body params
       mimeType: req.getHeader("content-type"),
-      text: additionalData.bodyString,
+      text: additionalData.reqBodyString,
     };
   }
 
@@ -168,6 +178,28 @@ export class Har {
     }));
   }
 
+  private buildRequestHeadersSize(req: Request): number {
+    // Building string to get actual byte size
+    let rawHeaders = "";
+    rawHeaders += `${req.method} ${req.url} HTTP/${req.httpVersion}\r\n`;
+    for (let i = 0; i < req.rawHeaders.length; i += 2) {
+      rawHeaders += `${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}\r\n`;
+    }
+    rawHeaders += "\r\n";
+    return Buffer.byteLength(rawHeaders, "utf8");
+  }
+
+  private buildResponseHeadersSize(req: Request, res: Response): number {
+    // Building string to get actual byte size
+    let rawHeaders = "";
+    rawHeaders += `HTTP/${req.httpVersion} ${res.statusCode} ${res.statusMessage}\r\n`;
+    Object.entries(res.getHeaders()).forEach(([header, value]) => {
+      rawHeaders += `${header}: ${value}`;
+    });
+    rawHeaders += "\r\n";
+    return Buffer.byteLength(rawHeaders, "utf8");
+  }
+
   private buildResponseHeaders(headers: Object): Header[] {
     const responseHeaders: Header[] = [];
     Object.entries(headers).forEach(([name, value]) => {
@@ -186,6 +218,23 @@ export class Har {
       }
     });
     return responseHeaders;
+  }
+
+  private buildResponseContent(
+    res: Response,
+    additionalData: AdditionalData
+  ): Content {
+    const content: Content = {
+      size: -1,
+      mimeType: res.getHeaders()["content-type"] ?? "",
+    };
+    if (additionalData.responseText != null) {
+      content.text = additionalData.responseText;
+    }
+    if (additionalData.responseSize != null) {
+      content.size = additionalData.responseSize;
+    }
+    return content;
   }
 
   private buildQueryString(urlStr: string): QueryString[] {

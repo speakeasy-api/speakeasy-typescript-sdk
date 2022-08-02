@@ -47,7 +47,7 @@ const simpleHar = {
             },
           ],
           queryString: [],
-          headersSize: -1,
+          headersSize: 92,
           bodySize: -1,
         },
         response: {
@@ -72,11 +72,15 @@ const simpleHar = {
               value: 'W/"c-00hq6RNueFa8QiEjhep5cJRHWAI"',
             },
           ],
-          content: null,
+          content: {
+            mimeType: "text/html; charset=utf-8",
+            size: 12,
+            text: "Hello world!",
+          },
           redirectURL: "",
           httpVersion: "",
-          headersSize: -1,
-          bodySize: -1,
+          headersSize: 135,
+          bodySize: 12,
         },
         cache: {},
         timings: {
