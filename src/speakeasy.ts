@@ -20,6 +20,10 @@ export function init(config: Config): SpeakeasySDK | null {
   return speakeasyInstance;
 }
 
+export function uninit() {
+  speakeasyInstance = null;
+}
+
 export function getInstance(): SpeakeasySDK | null {
   return speakeasyInstance;
 }

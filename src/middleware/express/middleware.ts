@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { getInstance } from "../../speakeasy";
 import { sendApiCall } from "../../transport";
 import { outputError } from "../../error";
+import { Har, AdditionalData } from "../../format/har";
 
 export function expressMiddleware() {
   return function (req: Request, res: Response, next: () => void) {
@@ -12,7 +13,10 @@ export function expressMiddleware() {
     }
 
     res.on("finish", () => {
-      sendApiCall();
+      const additionalData: AdditionalData = {};
+      // TODO(kevinc): Get body data
+      const har = Har.buildHar(req, res, additionalData);
+      sendApiCall(har);
     });
     next();
   };
