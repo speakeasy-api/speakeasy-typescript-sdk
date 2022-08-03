@@ -15,3 +15,5 @@ To setup:
 `prettier` is used with `husky` and `lint-staged` to lint on commit, which should be installed automatically by `npm`.
 
 Use `yarn test` to run the test suite.
+
+Can also use `yarn test-with-debugger` to run the builtin node debugger by placing a `debugger;` anywhere in the code base.
