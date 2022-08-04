@@ -12,9 +12,9 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        node-version: [14.x, 16.x, 18.x]
+        node-version: [16.x, 18.x]
 
-    name: Tests - Go ${{ matrix.go-version }}
+    name: Tests - Node ${{ matrix.node-version }}
 
     steps:
       - name: Configure git for private modules
