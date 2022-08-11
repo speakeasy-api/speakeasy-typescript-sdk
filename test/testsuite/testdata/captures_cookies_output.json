@@ -1,0 +1,167 @@
+{
+  "log": {
+    "version": "1.2",
+    "creator": {
+      "name": "speakeasy-typescript-sdk",
+      "version": "1.1.0"
+    },
+    "entries": [
+      {
+        "startedDateTime": "2020-01-01T00:00:00.000Z",
+        "time": 1,
+        "request": {
+          "method": "GET",
+          "url": "http:\\/\\/.*?\\/test",
+          "httpVersion": "HTTP/1.1",
+          "cookies": [
+            {
+              "name": "cookie1",
+              "value": "value1"
+            },
+            {
+              "name": "cookie2",
+              "value": "value2"
+            }
+          ],
+          "headers": [
+            {
+              "name": "host",
+              "value": "test.com"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate"
+            },
+            {
+              "name": "cookie",
+              "value": "cookie1=value1; cookie2=value2"
+            },
+            {
+              "name": "connection",
+              "value": "close"
+            }
+          ],
+          "queryString": [],
+          "headersSize": 116,
+          "bodySize": -1
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "cookies": [
+            {
+              "name": "cookie1",
+              "value": "value1"
+            },
+            {
+              "name": "cookie2",
+              "value": "value2",
+              "expires": "2020-01-01T01:00:00.000Z"
+            },
+            {
+              "name": "cookie3",
+              "value": "value3",
+              "expires": "2015-10-21T07:28:00.000Z"
+            },
+            {
+              "name": "cookie4",
+              "value": "value4",
+              "domain": "test.com"
+            },
+            {
+              "name": "cookie5",
+              "value": "value5",
+              "path": "/test"
+            },
+            {
+              "name": "cookie6",
+              "value": "value6",
+              "secure": true
+            },
+            {
+              "name": "cookie7",
+              "value": "value7",
+              "httpOnly": true
+            },
+            {
+              "name": "cookie8",
+              "value": "value8",
+              "path": "/test",
+              "domain": "test.com",
+              "expires": "2020-01-01T01:00:00.000Z",
+              "httpOnly": true,
+              "secure": true
+            }
+          ],
+          "headers": [
+            {
+              "name": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie1=value1"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie2=value2; Max-Age=3600"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie3=value3; Expires=Wed, 21 Oct 2015 07:28:00 GMT"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie4=value4; Domain=test.com"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie5=value5; Path=/test"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie6=value6; Secure"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie7=value7; HttpOnly"
+            },
+            {
+              "name": "set-cookie",
+              "value": "cookie8=value8; Max-Age=3600; Domain=test.com; Path=/test; Secure; HttpOnly"
+            },
+            {
+              "name": "content-type",
+              "value": "text/html; charset=utf-8"
+            },
+            {
+              "name": "content-length",
+              "value": "4"
+            },
+            {
+              "name": "etag",
+              "value": "W/\"4-qUqP5cyxm6YcTAhz05Hph5gvu9M\""
+            }
+          ],
+          "content": {
+            "size": 4,
+            "mimeType": "text/html; charset=utf-8",
+            "text": "test"
+          },
+          "redirectURL": "",
+          "headersSize": 510,
+          "bodySize": 4
+        },
+        "cache": {},
+        "timings": {
+          "send": -1,
+          "wait": -1,
+          "receive": -1
+        },
+        "serverIPAddress": "test.com"
+      }
+    ],
+    "comment": "request capture for http:\\/\\/.*?\\/test"
+  }
+}

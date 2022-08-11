@@ -1,0 +1,12 @@
+{
+  "name": "captures no response body when not modified",
+  "fields": {
+    "max_capture_size": 9437184
+  },
+  "args": {
+    "method": "GET",
+    "url": "/test",
+    "response_status": 304,
+    "response_body": "test"
+  }
+}

@@ -1,0 +1,90 @@
+{
+  "log": {
+    "version": "1.2",
+    "creator": {
+      "name": "speakeasy-typescript-sdk",
+      "version": "1.1.0"
+    },
+    "entries": [
+      {
+        "startedDateTime": "2020-01-01T00:00:00.000Z",
+        "time": 1,
+        "request": {
+          "method": "POST",
+          "url": "http:\\/\\/.*?\\/test",
+          "httpVersion": "HTTP/1.1",
+          "cookies": [],
+          "headers": [
+            {
+              "name": "host",
+              "value": "test.com"
+            },
+            {
+              "name": "accept-encoding",
+              "value": "gzip, deflate"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            },
+            {
+              "name": "content-length",
+              "value": "14"
+            },
+            {
+              "name": "connection",
+              "value": "close"
+            }
+          ],
+          "queryString": [],
+          "postData": {
+            "mimeType": "application/json",
+            "text": "{test: \"test\"}"
+          },
+          "headersSize": 128,
+          "bodySize": 14
+        },
+        "response": {
+          "status": 200,
+          "statusText": "OK",
+          "httpVersion": "HTTP/1.1",
+          "cookies": [],
+          "headers": [
+            {
+              "name": "x-powered-by",
+              "value": "Express"
+            },
+            {
+              "name": "content-type",
+              "value": "text/plain; charset=utf-8"
+            },
+            {
+              "name": "content-length",
+              "value": "4"
+            },
+            {
+              "name": "etag",
+              "value": "W/\"4-qUqP5cyxm6YcTAhz05Hph5gvu9M\""
+            }
+          ],
+          "content": {
+            "size": 4,
+            "mimeType": "text/plain; charset=utf-8",
+            "text": "test"
+          },
+          "redirectURL": "",
+          "headersSize": 126,
+          "bodySize": 4
+        },
+        "cache": {},
+        "timings": {
+          "send": -1,
+          "wait": -1,
+          "receive": -1
+        },
+        "serverIPAddress": "test.com"
+      }
+    ],
+    "comment": "request capture for http:\\/\\/.*?\\/test"
+  }
+}
