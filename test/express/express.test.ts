@@ -150,18 +150,18 @@ const simpleErrorHar: Har = {
             },
             {
               name: "content-length",
-              value: "1379",
+              value: expect.anything(),
             },
           ],
           content: {
             mimeType: "text/html; charset=utf-8",
-            size: 1379,
+            size: expect.any(Number),
             text: expect.anything(),
           },
           redirectURL: "",
           httpVersion: "HTTP/1.1",
           headersSize: 165,
-          bodySize: 1379,
+          bodySize: expect.any(Number),
         },
         cache: {},
         timings: {
