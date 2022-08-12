@@ -1,0 +1,22 @@
+{
+  "name": "captures basic request and response with different content types",
+  "fields": {
+    "max_capture_size": 9437184
+  },
+  "args": {
+    "method": "GET",
+    "url": "/test",
+    "headers": [
+      { "key": "content-type", "values": ["application/json"] },
+      { "key": "host", "values": ["test.com"] },
+      { "key": "accept-encoding", "values": ["gzip, deflate"] },
+      { "key": "connection", "values": ["close"] }
+    ],
+    "response_status": -1,
+    "response_body": "test",
+    "response_headers": [
+      { "key": "content-type", "values": ["text/plain; charset=utf-8"] },
+      { "key": "content-length", "values": ["4"] }
+    ]
+  }
+}

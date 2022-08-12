@@ -1,0 +1,15 @@
+{
+  "name": "captures basic request and no response body",
+  "fields": {
+    "max_capture_size": 9437184
+  },
+  "args": {
+    "method": "GET",
+    "url": "/test",
+    "headers": [
+      { "key": "host", "values": ["test.com"] },
+      { "key": "accept-encoding", "values": ["gzip, deflate"] },
+      { "key": "connection", "values": ["close"] }
+    ]
+  }
+}
