@@ -3,7 +3,7 @@
     "version": "1.2",
     "creator": {
       "name": "speakeasy-typescript-sdk",
-      "version": "1.1.0"
+      "version": "1.1.1"
     },
     "entries": [
       {
@@ -53,7 +53,7 @@
           },
           "redirectURL": "",
           "headersSize": 66,
-          "bodySize": -1
+          "bodySize": 0
         },
         "cache": {},
         "timings": {

@@ -5,20 +5,19 @@ import {
   Request as HarRequest,
   Response as HarResponse,
   Header,
-  PostData,
   QueryString,
 } from "har-format";
 import { Request, Response } from "express";
 import { timeNow, timeSince } from "./time";
 
-import { PassThrough } from "stream";
+import { RequestResponseWriter } from "./requestresponsewriter";
 import Timestamp from "timestamp-nano";
 import cookie from "cookie";
-import getRawBody from "raw-body";
-import { parse as parseContentType } from "content-type";
 import setCookie from "set-cookie-parser";
 import { speakeasyVerion } from "./speakeasy";
 import url from "url";
+
+const droppedText = "--dropped--";
 
 export type AdditionalData = {
   reqBodyString?: string;
@@ -31,32 +30,23 @@ export class HarBuilder {
   private har: Har | null = null;
 
   // TODO this specifically supports express Request/Response format atm need to investigate work required to support other frameworks
-  public static async populate(
+  public static populate(
     req: Request,
-    reqPipe: PassThrough,
     res: Response,
-    resBuf: Buffer,
+    reqResWriter: RequestResponseWriter,
     startTime: Timestamp,
     port: number
-  ): Promise<HarBuilder> {
-    return new HarBuilder().populate(
-      req,
-      reqPipe,
-      res,
-      resBuf,
-      startTime,
-      port
-    );
+  ): HarBuilder {
+    return new HarBuilder().populate(req, res, reqResWriter, startTime, port);
   }
 
-  public async populate(
+  public populate(
     req: Request,
-    reqPipe: PassThrough,
     res: Response,
-    resBuf: Buffer,
+    reqResWriter: RequestResponseWriter,
     startTime: Timestamp,
     port: number
-  ): Promise<HarBuilder> {
+  ): HarBuilder {
     const host = req.get("host") ?? "";
 
     const fullURL = `${req.protocol}://${host}${
@@ -77,13 +67,8 @@ export class HarBuilder {
           {
             startedDateTime: startTime.toJSON(),
             time: timeSince(startTime),
-            request: await this.buildRequest(
-              req,
-              reqPipe,
-              fullURL,
-              httpVersion
-            ),
-            response: this.buildResponse(res, resBuf, httpVersion),
+            request: this.buildRequest(req, reqResWriter, fullURL, httpVersion),
+            response: this.buildResponse(res, reqResWriter, httpVersion),
             cache: {},
             timings: {
               send: -1,
@@ -104,12 +89,12 @@ export class HarBuilder {
     return JSON.stringify(this.har);
   }
 
-  private async buildRequest(
+  private buildRequest(
     req: Request,
-    reqPipe: PassThrough,
+    reqResWriter: RequestResponseWriter,
     fullURL: string,
     httpVersion: string
-  ): Promise<HarRequest> {
+  ): HarRequest {
     const result: HarRequest = {
       method: req.method ?? "",
       url: fullURL,
@@ -120,10 +105,25 @@ export class HarBuilder {
       headersSize: this.buildRequestHeadersSize(req),
       bodySize: -1,
     };
-    const postData = await this.buildRequestPostData(req, reqPipe);
-    if (postData != null) {
-      result.postData = postData;
-      result.bodySize = postData.text?.length ?? -1;
+
+    const body = reqResWriter.getRequestBody();
+
+    if (body !== null) {
+      if (body.length > 0) {
+        result.postData = {
+          mimeType: req.headers["content-type"] ?? "",
+          text: body.toString(reqResWriter.getRequestBodyEncoding()),
+        };
+      }
+    } else {
+      result.postData = {
+        mimeType: req.headers["content-type"] ?? "application/octet-stream",
+        text: droppedText,
+      };
+    }
+
+    if (result.postData) {
+      result.bodySize = parseInt(req.headers["content-length"], 10);
     }
 
     return result;
@@ -131,10 +131,10 @@ export class HarBuilder {
 
   private buildResponse(
     res: Response,
-    resBuf: Buffer,
+    reqResWriter: RequestResponseWriter,
     httpVersion: string
   ): HarResponse {
-    const content = this.buildResponseContent(res, resBuf);
+    const content = this.buildResponseContent(res, reqResWriter);
     const result: HarResponse = {
       status: res.statusCode,
       statusText: res.statusMessage,
@@ -144,7 +144,10 @@ export class HarBuilder {
       content: content,
       redirectURL: res.getHeader("location")?.toString() ?? "",
       headersSize: this.buildResponseHeadersSize(res),
-      bodySize: content.size,
+      bodySize:
+        res.statusCode == 304
+          ? 0
+          : parseInt(res.getHeader("content-length")?.toString() ?? "-1", 10),
     };
 
     return result;
@@ -163,32 +166,6 @@ export class HarBuilder {
       });
     });
     return entries;
-  }
-
-  private async buildRequestPostData(
-    req: Request,
-    reqPipe: PassThrough
-  ): Promise<PostData | undefined> {
-    const rawBodyOptions: {
-      encoding: string;
-    } = {
-      encoding: "utf-8",
-    };
-    try {
-      rawBodyOptions.encoding = parseContentType(req).parameters.charset;
-    } catch (err) {}
-
-    const rawBody: Buffer | string = await getRawBody(reqPipe, rawBodyOptions);
-
-    if (!rawBody) {
-      return undefined;
-    }
-
-    return {
-      // We don't parse the body params
-      mimeType: req.headers["content-type"] ?? "",
-      text: rawBody.toString(),
-    };
   }
 
   private buildResponseCookie(res: Response): Cookie[] {
@@ -316,15 +293,25 @@ export class HarBuilder {
     return headers;
   }
 
-  private buildResponseContent(res: Response, resBuf: Buffer): Content {
+  private buildResponseContent(
+    res: Response,
+    reqResWriter: RequestResponseWriter
+  ): Content {
     const content: Content = {
       size: -1,
       mimeType:
         res.getHeader("content-type")?.toString() ?? "application/octet-stream",
     };
-    if (resBuf.length > 0) {
-      content.text = resBuf.toString("utf8");
-      content.size = resBuf.length;
+    const resBuf = reqResWriter.getResponseBody();
+
+    if (resBuf !== null) {
+      if (resBuf.length > 0) {
+        content.text = resBuf.toString("utf8");
+        content.size = resBuf.length;
+      }
+    } else {
+      content.text = droppedText;
+      content.size = -1;
     }
 
     return content;

@@ -5,6 +5,7 @@ import { setTimeNow, setTimeSince } from "../../src/time";
 import { GRPCClient } from "../../src/transport";
 import { SpeakeasySDK } from "../../src/speakeasy";
 import fs from "fs";
+import { setMaxCaptureSize } from "../../src/requestresponsewriter";
 
 jest.mock("../../src/transport");
 
@@ -73,6 +74,8 @@ describe("Test Suite", () => {
       args.response_body,
       args.response_headers
     );
+
+    setMaxCaptureSize(fields.max_capture_size);
 
     setTimeNow(args.request_start_time ?? "2020-01-01T00:00:00.000Z");
     setTimeSince(args.elapsed_time ?? 1);

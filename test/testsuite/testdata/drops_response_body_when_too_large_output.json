@@ -10,7 +10,7 @@
         "startedDateTime": "2020-01-01T00:00:00.000Z",
         "time": 1,
         "request": {
-          "method": "GET",
+          "method": "POST",
           "url": "http:\\/\\/.*?\\/test",
           "httpVersion": "HTTP/1.1",
           "cookies": [],
@@ -28,13 +28,21 @@
               "value": "application/json"
             },
             {
+              "name": "content-length",
+              "value": "10"
+            },
+            {
               "name": "connection",
               "value": "close"
             }
           ],
           "queryString": [],
-          "headersSize": 108,
-          "bodySize": -1
+          "postData": {
+            "mimeType": "application/json",
+            "text": "{\"a\": \"b\"}"
+          },
+          "headersSize": 128,
+          "bodySize": 10
         },
         "response": {
           "status": 200,
@@ -52,21 +60,21 @@
             },
             {
               "name": "content-length",
-              "value": "4"
+              "value": "40"
             },
             {
               "name": "etag",
-              "value": "W/\"4-qUqP5cyxm6YcTAhz05Hph5gvu9M\""
+              "value": "W/\"28-B/b1GQ0mtzXP8c571OiofHBnFkA\""
             }
           ],
           "content": {
-            "size": 4,
+            "size": -1,
             "mimeType": "text/plain; charset=utf-8",
-            "text": "test"
+            "text": "--dropped--"
           },
           "redirectURL": "",
-          "headersSize": 126,
-          "bodySize": 4
+          "headersSize": 128,
+          "bodySize": 40
         },
         "cache": {},
         "timings": {
