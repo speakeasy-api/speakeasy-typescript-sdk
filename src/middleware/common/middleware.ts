@@ -1,4 +1,4 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
 
 import { HarBuilder } from "../../harbuilder";
 import { MiddlewareController } from "../../controller";

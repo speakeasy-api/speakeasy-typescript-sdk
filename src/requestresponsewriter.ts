@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 
 import { PassThrough } from "stream";
 import { parse as parseContentType } from "content-type";

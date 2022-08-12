@@ -1,4 +1,4 @@
-import { SpeakeasySDK, sdkName, speakeasyVerion } from "../../src/speakeasy";
+import { SpeakeasySDK, sdkName, speakeasyVersion } from "../../src/speakeasy";
 import express, { Express } from "express";
 import { setTimeNow, setTimeSince } from "../../src/time";
 
@@ -13,7 +13,7 @@ const simpleSuccessHar: Har = {
     version: "1.2",
     creator: {
       name: sdkName,
-      version: speakeasyVerion,
+      version: speakeasyVersion,
     },
     comment: expect.stringMatching(
       `request capture for http://127\.0\.0\.1:.*?/`
@@ -87,7 +87,7 @@ const simpleErrorHar: Har = {
     version: "1.2",
     creator: {
       name: sdkName,
-      version: speakeasyVerion,
+      version: speakeasyVersion,
     },
     comment: expect.stringMatching(
       `request capture for http://127\.0\.0\.1:.*?/`

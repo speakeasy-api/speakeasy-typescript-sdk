@@ -7,14 +7,14 @@ import {
   Header,
   QueryString,
 } from "har-format";
-import { Request, Response } from "express";
+import type { Request, Response } from "express";
 import { timeNow, timeSince } from "./time";
 
 import { RequestResponseWriter } from "./requestresponsewriter";
 import Timestamp from "timestamp-nano";
 import cookie from "cookie";
 import setCookie from "set-cookie-parser";
-import { speakeasyVerion } from "./speakeasy";
+import { speakeasyVersion } from "./speakeasy";
 import url from "url";
 
 const droppedText = "--dropped--";
@@ -60,7 +60,7 @@ export class HarBuilder {
         version: "1.2",
         creator: {
           name: "speakeasy-typescript-sdk",
-          version: speakeasyVerion,
+          version: speakeasyVersion,
         },
         comment: `request capture for ${fullURL}`,
         entries: [

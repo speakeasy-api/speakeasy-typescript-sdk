@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import type { RequestHandler } from "express";
 import { SpeakeasySDK } from "../../speakeasy";
 import { expressCompatibleMiddleware } from "../common/middleware";
 

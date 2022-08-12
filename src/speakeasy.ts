@@ -1,9 +1,9 @@
 import { GRPCClient } from "./transport";
-import { RequestHandler } from "express";
+import type { RequestHandler } from "express";
 import { expressMiddleware as eMiddleware } from "./middleware/express/middleware";
 import { nestJSMiddleware as nMiddleware } from "./middleware/nestjs/middleware";
 
-export const speakeasyVerion = "1.1.2";
+export const speakeasyVersion = "1.1.3";
 export const sdkName = "speakeasy-typescript-sdk";
 
 let speakeasyInstance: SpeakeasySDK | null = null;
