@@ -29,10 +29,6 @@ const simpleSuccessHar: Har = {
           cookies: [],
           headers: [
             {
-              name: "host",
-              value: expect.anything(),
-            },
-            {
               name: "accept-encoding",
               value: "gzip, deflate",
             },
@@ -40,9 +36,13 @@ const simpleSuccessHar: Har = {
               name: "connection",
               value: "close",
             },
+            {
+              name: "host",
+              value: expect.anything(),
+            },
           ],
           queryString: [],
-          headersSize: 76,
+          headersSize: 74,
           bodySize: -1,
         },
         response: {
@@ -51,20 +51,12 @@ const simpleSuccessHar: Har = {
           cookies: [],
           headers: [
             {
-              name: "x-powered-by",
-              value: "Express",
-            },
-            {
-              name: "content-type",
-              value: "text/html; charset=utf-8",
-            },
-            {
               name: "content-length",
               value: "12",
             },
             {
-              name: "etag",
-              value: 'W/"c-00hq6RNueFa8QiEjhep5cJRHWAI"',
+              name: "content-type",
+              value: "text/html; charset=utf-8",
             },
           ],
           content: {
@@ -74,7 +66,7 @@ const simpleSuccessHar: Har = {
           },
           redirectURL: "",
           httpVersion: "HTTP/1.1",
-          headersSize: 126,
+          headersSize: 60,
           bodySize: 12,
         },
         cache: {},
@@ -111,10 +103,6 @@ const simpleErrorHar: Har = {
           cookies: [],
           headers: [
             {
-              name: "host",
-              value: expect.anything(),
-            },
-            {
               name: "accept-encoding",
               value: "gzip, deflate",
             },
@@ -122,9 +110,13 @@ const simpleErrorHar: Har = {
               name: "connection",
               value: "close",
             },
+            {
+              name: "host",
+              value: expect.anything(),
+            },
           ],
           queryString: [],
-          headersSize: 76,
+          headersSize: 74,
           bodySize: -1,
         },
         response: {
@@ -133,24 +125,20 @@ const simpleErrorHar: Har = {
           cookies: [],
           headers: [
             {
-              name: "x-powered-by",
-              value: "Express",
+              name: "content-length",
+              value: expect.anything(),
             },
             {
               name: "content-security-policy",
               value: "default-src 'none'",
             },
             {
-              name: "x-content-type-options",
-              value: "nosniff",
-            },
-            {
               name: "content-type",
               value: "text/html; charset=utf-8",
             },
             {
-              name: "content-length",
-              value: expect.anything(),
+              name: "x-content-type-options",
+              value: "nosniff",
             },
           ],
           content: {
@@ -160,7 +148,7 @@ const simpleErrorHar: Har = {
           },
           redirectURL: "",
           httpVersion: "HTTP/1.1",
-          headersSize: 165,
+          headersSize: 140,
           bodySize: expect.any(Number),
         },
         cache: {},
@@ -351,6 +339,8 @@ describe("Simple Express Server", () => {
 
 function createSimpleExpressApp(sdk: SpeakeasySDK): Express {
   const app = express();
+  app.disable("x-powered-by");
+  app.set("etag", false);
   app.use(sdk.expressMiddleware());
   app.all("/v1/user/:id", (req, res) => {
     res.status(200).send("Hello world!");

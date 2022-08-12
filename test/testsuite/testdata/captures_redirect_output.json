@@ -3,7 +3,7 @@
     "version": "1.2",
     "creator": {
       "name": "speakeasy-typescript-sdk",
-      "version": "1.1.1"
+      "version": "1.1.2"
     },
     "entries": [
       {
@@ -16,20 +16,20 @@
           "cookies": [],
           "headers": [
             {
-              "name": "host",
-              "value": "test.com"
-            },
-            {
               "name": "accept-encoding",
               "value": "gzip, deflate"
             },
             {
               "name": "connection",
               "value": "close"
+            },
+            {
+              "name": "host",
+              "value": "test.com"
             }
           ],
           "queryString": [],
-          "headersSize": 76,
+          "headersSize": 67,
           "bodySize": -1
         },
         "response": {
@@ -39,24 +39,16 @@
           "cookies": [],
           "headers": [
             {
-              "name": "x-powered-by",
-              "value": "Express"
-            },
-            {
-              "name": "location",
-              "value": "http://test.com/test2"
+              "name": "content-length",
+              "value": "4"
             },
             {
               "name": "content-type",
               "value": "text/html; charset=utf-8"
             },
             {
-              "name": "content-length",
-              "value": "4"
-            },
-            {
-              "name": "etag",
-              "value": "W/\"4-qUqP5cyxm6YcTAhz05Hph5gvu9M\""
+              "name": "location",
+              "value": "http://test.com/test2"
             }
           ],
           "content": {
@@ -65,7 +57,7 @@
             "text": "test"
           },
           "redirectURL": "http://test.com/test2",
-          "headersSize": 158,
+          "headersSize": 92,
           "bodySize": 4
         },
         "cache": {},

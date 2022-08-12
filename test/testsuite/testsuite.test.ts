@@ -9,6 +9,11 @@ import { setMaxCaptureSize } from "../../src/requestresponsewriter";
 
 jest.mock("../../src/transport");
 
+interface Header {
+  key: string;
+  values: string[];
+}
+
 interface Fields {
   max_capture_size: number;
 }
@@ -16,13 +21,13 @@ interface Fields {
 interface Args {
   method: string;
   url: string;
-  headers: Record<string, string[]>;
+  headers: Header[];
   body: string;
   request_start_time: string;
   elapsed_time: number;
   response_status: number;
   response_body: string;
-  response_headers: Record<string, string[]>;
+  response_headers: Header[];
 }
 
 interface Test {
@@ -104,9 +109,9 @@ describe("Test Suite", () => {
         throw new Error("Unsupported method: " + args.method);
     }
 
-    for (const key in args.headers) {
-      for (const value of args.headers[key]) {
-        r = r.set(key, value);
+    for (const header of args.headers) {
+      for (const value of header.values) {
+        r = r.set(header.key, value);
       }
     }
 
@@ -142,9 +147,11 @@ function createSimpleExpressApp(
   speakeasy: SpeakeasySDK,
   status: number,
   resBody: string,
-  resHeaders?: Record<string, string[]>
+  resHeaders?: Header[]
 ): Express {
   const app = express();
+  app.disable("x-powered-by");
+  app.set("etag", false);
   app.use(speakeasy.expressMiddleware());
   app.all("*", (req, res) => {
     if (status > 0) {
@@ -152,10 +159,10 @@ function createSimpleExpressApp(
     }
 
     if (resHeaders) {
-      for (const key in resHeaders) {
+      for (const header of resHeaders) {
         res.set(
-          key,
-          resHeaders[key].length == 1 ? resHeaders[key][0] : resHeaders[key]
+          header.key,
+          header.values.length == 1 ? header.values[0] : header.values
         );
       }
     }

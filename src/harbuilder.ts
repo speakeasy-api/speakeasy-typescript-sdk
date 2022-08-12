@@ -209,7 +209,7 @@ export class HarBuilder {
   }
 
   private buildRequestHeaders(req: Request): Header[] {
-    const headers: Header[] = [];
+    var headers: Header[] = [];
 
     for (const [headerName, headerValue] of Object.entries(req.headers)) {
       if (!headerValue) {
@@ -231,6 +231,8 @@ export class HarBuilder {
       }
     }
 
+    headers = headers.sort((a, b) => a.name.localeCompare(b.name));
+
     return headers;
   }
 
@@ -240,8 +242,7 @@ export class HarBuilder {
     for (let i = 0; i < req.rawHeaders.length; i += 2) {
       rawHeaders += `${req.rawHeaders[i]}: ${req.rawHeaders[i + 1]}\r\n`;
     }
-    rawHeaders += "\r\n";
-    return Buffer.byteLength(rawHeaders, "utf8");
+    return Buffer.byteLength(rawHeaders, "utf-8");
   }
 
   private buildResponseHeadersSize(res: Response): number {
@@ -262,12 +263,11 @@ export class HarBuilder {
         rawHeaders += `${headerName}: ${headerValue}\r\n`;
       }
     });
-    rawHeaders += "\r\n";
-    return Buffer.byteLength(rawHeaders, "utf8");
+    return Buffer.byteLength(rawHeaders, "utf-8");
   }
 
   private buildResponseHeaders(res: Response): Header[] {
-    const headers: Header[] = [];
+    var headers: Header[] = [];
     res.getHeaderNames().forEach((headerName) => {
       const value = res.getHeader(headerName);
 
@@ -289,6 +289,8 @@ export class HarBuilder {
         });
       }
     });
+
+    headers = headers.sort((a, b) => a.name.localeCompare(b.name));
 
     return headers;
   }

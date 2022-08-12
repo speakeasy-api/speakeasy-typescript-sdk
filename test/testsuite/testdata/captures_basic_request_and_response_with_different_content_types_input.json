@@ -6,13 +6,17 @@
   "args": {
     "method": "GET",
     "url": "/test",
-    "headers": {
-      "Content-Type": ["application/json"]
-    },
+    "headers": [
+      { "key": "content-type", "values": ["application/json"] },
+      { "key": "host", "values": ["test.com"] },
+      { "key": "accept-encoding", "values": ["gzip, deflate"] },
+      { "key": "connection", "values": ["close"] }
+    ],
     "response_status": -1,
     "response_body": "test",
-    "response_headers": {
-      "Content-Type": ["text/plain; charset=utf-8"]
-    }
+    "response_headers": [
+      { "key": "content-type", "values": ["text/plain; charset=utf-8"] },
+      { "key": "content-length", "values": ["4"] }
+    ]
   }
 }

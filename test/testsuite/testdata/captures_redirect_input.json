@@ -6,10 +6,17 @@
   "args": {
     "method": "GET",
     "url": "/test",
+    "headers": [
+      { "key": "host", "values": ["test.com"] },
+      { "key": "accept-encoding", "values": ["gzip, deflate"] },
+      { "key": "connection", "values": ["close"] }
+    ],
     "response_status": 200,
     "response_body": "test",
-    "response_headers": {
-      "Location": ["http://test.com/test2"]
-    }
+    "response_headers": [
+      { "key": "Location", "values": ["http://test.com/test2"] },
+      { "key": "content-type", "values": ["text/html; charset=utf-8"] },
+      { "key": "content-length", "values": ["4"] }
+    ]
   }
 }

@@ -6,14 +6,19 @@
   "args": {
     "method": "POST",
     "url": "/test",
-    "headers": {
-      "Content-Type": ["application/json"]
-    },
-    "body": "{test: \"test\"}",
+    "headers": [
+      { "key": "content-type", "values": ["application/json"] },
+      { "key": "content-length", "values": ["16"] },
+      { "key": "host", "values": ["test.com"] },
+      { "key": "accept-encoding", "values": ["gzip, deflate"] },
+      { "key": "connection", "values": ["close"] }
+    ],
+    "body": "{\"test\": \"test\"}",
     "response_status": -1,
     "response_body": "test",
-    "response_headers": {
-      "Content-Type": ["text/plain; charset=utf-8"]
-    }
+    "response_headers": [
+      { "key": "content-type", "values": ["text/plain; charset=utf-8"] },
+      { "key": "content-length", "values": ["4"] }
+    ]
   }
 }

@@ -6,6 +6,11 @@
   "args": {
     "method": "GET",
     "url": "/test",
+    "headers": [
+      { "key": "host", "values": ["test.com"] },
+      { "key": "accept-encoding", "values": ["gzip, deflate"] },
+      { "key": "connection", "values": ["close"] }
+    ],
     "response_status": 304,
     "response_body": "test"
   }
