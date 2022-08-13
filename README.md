@@ -2,15 +2,16 @@
 
 ![180100416-b66263e6-1607-4465-b45d-0e298a67c397](https://user-images.githubusercontent.com/68016351/181640742-31ab234a-3b39-432e-b899-21037596b360.png)
 
-Speakeasy is your API Platform team as a service. Use our drop in SDK to manage all your API Operations including embeds for request logs and usage dashboards, test case generation from traffic, and understanding API drift.
+Speakeasy is your API Platform team as a service. Use our drop in SDK to manage all your API Operations including customer facing embeds for request logs, usage metrics, understanding API drift and more.
 
-The Speakeasy Typescript SDK for evaluating API requests/responses. Compatible currently with the express framework.
+The Speakeasy Typescript SDK for evaluating API requests/responses.
 
 ## Requirements
 
 Supported frameworks: 
 
-* express
+* Express
+* NestJs
 
 ## Usage
 
@@ -266,4 +267,4 @@ app.all("/", (req, res) => {
 });
 ```
 
-Note: This is not required, but is highly recommended. By setting a customer ID you can easily associate requests with your customers/users in the Speakeasy Dashboard, powering filters in the Request Viewer [(Coming soon)](https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer-coming-soon).
+Note: This is not required, but is highly recommended. By setting a customer ID you can easily associate requests with your customers/users in the Speakeasy Dashboard, powering filters in the [Request Viewer](https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer-coming-soon).
