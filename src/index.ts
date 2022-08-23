@@ -5,8 +5,7 @@ import {
   expressMiddleware,
   nestJSMiddleware,
 } from "./speakeasy";
-
-import { MiddlewareController } from "./controller";
+import { Masking, MiddlewareController } from "./controller";
 
 const speakeasy = {
   configure: configure,
@@ -24,4 +23,4 @@ declare global {
 }
 
 export default speakeasy;
-export { Config, SpeakeasySDK, MiddlewareController };
+export { Config, SpeakeasySDK, MiddlewareController, Masking };

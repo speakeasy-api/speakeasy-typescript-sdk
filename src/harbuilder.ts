@@ -10,9 +10,11 @@ import {
 import type { Request, Response } from "express";
 import { timeNow, timeSince } from "./time";
 
+import { Masking } from "./controller";
 import { RequestResponseWriter } from "./requestresponsewriter";
 import Timestamp from "timestamp-nano";
 import cookie from "cookie";
+import { maskBodyRegex } from "./bodymasking";
 import setCookie from "set-cookie-parser";
 import { speakeasyVersion } from "./speakeasy";
 import url from "url";
@@ -35,9 +37,17 @@ export class HarBuilder {
     res: Response,
     reqResWriter: RequestResponseWriter,
     startTime: Timestamp,
-    port: number
+    port: number,
+    masking: Masking
   ): HarBuilder {
-    return new HarBuilder().populate(req, res, reqResWriter, startTime, port);
+    return new HarBuilder().populate(
+      req,
+      res,
+      reqResWriter,
+      startTime,
+      port,
+      masking
+    );
   }
 
   public populate(
@@ -45,13 +55,26 @@ export class HarBuilder {
     res: Response,
     reqResWriter: RequestResponseWriter,
     startTime: Timestamp,
-    port: number
+    port: number,
+    masking: Masking
   ): HarBuilder {
     const host = req.get("host") ?? "";
 
-    const fullURL = `${req.protocol}://${host}${
+    const fullOriginalURL = `${req.protocol}://${host}${
       !host.includes(":") && port != 80 && port != 443 ? `:${port}` : ""
     }${req.originalUrl}`;
+
+    const harQueryString = this.buildQueryString(fullOriginalURL, masking);
+
+    const u = new URL(fullOriginalURL);
+
+    u.search = "";
+
+    harQueryString.forEach((qs) => {
+      u.searchParams.append(qs.name, qs.value);
+    });
+
+    const fullURL = u.toString();
 
     const httpVersion = `HTTP/${req.httpVersion}`;
 
@@ -67,8 +90,20 @@ export class HarBuilder {
           {
             startedDateTime: startTime.toJSON(),
             time: timeSince(startTime),
-            request: this.buildRequest(req, reqResWriter, fullURL, httpVersion),
-            response: this.buildResponse(res, reqResWriter, httpVersion),
+            request: this.buildRequest(
+              req,
+              reqResWriter,
+              fullURL,
+              httpVersion,
+              masking,
+              harQueryString
+            ),
+            response: this.buildResponse(
+              res,
+              reqResWriter,
+              httpVersion,
+              masking
+            ),
             cache: {},
             timings: {
               send: -1,
@@ -93,15 +128,17 @@ export class HarBuilder {
     req: Request,
     reqResWriter: RequestResponseWriter,
     fullURL: string,
-    httpVersion: string
+    httpVersion: string,
+    masking: Masking,
+    harQueryString: QueryString[]
   ): HarRequest {
     const result: HarRequest = {
       method: req.method ?? "",
       url: fullURL,
       httpVersion: httpVersion,
-      cookies: this.buildRequestCookie(req),
-      headers: this.buildRequestHeaders(req),
-      queryString: this.buildQueryString(fullURL),
+      cookies: this.buildRequestCookie(req, masking),
+      headers: this.buildRequestHeaders(req, masking),
+      queryString: harQueryString,
       headersSize: this.buildRequestHeadersSize(req),
       bodySize: -1,
     };
@@ -110,9 +147,23 @@ export class HarBuilder {
 
     if (body !== null) {
       if (body.length > 0) {
+        const mimeType = req.headers["content-type"] ?? "";
+
+        let bodyString = body.toString(reqResWriter.getRequestBodyEncoding());
+        try {
+          bodyString = maskBodyRegex(
+            bodyString,
+            mimeType,
+            masking.requestFieldMasksString,
+            masking.requestFieldMasksNumber
+          );
+        } catch (e) {
+          // TODO: log error
+        }
+
         result.postData = {
           mimeType: req.headers["content-type"] ?? "",
-          text: body.toString(reqResWriter.getRequestBodyEncoding()),
+          text: bodyString,
         };
       }
     } else {
@@ -132,15 +183,16 @@ export class HarBuilder {
   private buildResponse(
     res: Response,
     reqResWriter: RequestResponseWriter,
-    httpVersion: string
+    httpVersion: string,
+    masking: Masking
   ): HarResponse {
-    const content = this.buildResponseContent(res, reqResWriter);
+    const content = this.buildResponseContent(res, reqResWriter, masking);
     const result: HarResponse = {
       status: res.statusCode,
       statusText: res.statusMessage,
       httpVersion: httpVersion,
-      cookies: this.buildResponseCookie(res),
-      headers: this.buildResponseHeaders(res),
+      cookies: this.buildResponseCookie(res, masking),
+      headers: this.buildResponseHeaders(res, masking),
       content: content,
       redirectURL: res.getHeader("location")?.toString() ?? "",
       headersSize: this.buildResponseHeadersSize(res),
@@ -153,13 +205,18 @@ export class HarBuilder {
     return result;
   }
 
-  private buildRequestCookie(req: Request): Cookie[] {
+  private buildRequestCookie(req: Request, masking: Masking): Cookie[] {
     const cookies = req.headers.cookie ?? "";
     const entries: Cookie[] = [];
     if (!cookie) {
       return [];
     }
     Object.entries(cookie.parse(cookies)).forEach(([cookieName, cookieVal]) => {
+      const cookieMask = masking.requestCookieMasks[cookieName];
+      if (cookieMask) {
+        cookieVal = cookieMask;
+      }
+
       entries.push({
         name: cookieName,
         value: cookieVal,
@@ -168,7 +225,7 @@ export class HarBuilder {
     return entries;
   }
 
-  private buildResponseCookie(res: Response): Cookie[] {
+  private buildResponseCookie(res: Response, masking: Masking): Cookie[] {
     const setCookieHeader = res.getHeader("set-cookie");
     if (setCookieHeader == null) {
       return [];
@@ -187,9 +244,15 @@ export class HarBuilder {
     }
 
     return setCookie.parse(rawCookies).map((cookie) => {
+      let cookieValue = cookie.value;
+      const cookieMask = masking.responseCookieMasks[cookie.name];
+      if (cookieMask) {
+        cookieValue = cookieMask;
+      }
+
       const hc: Cookie = {
         name: cookie.name,
-        value: cookie.value,
+        value: cookieValue,
         path: cookie.path,
         domain: cookie.domain,
         httpOnly: cookie.httpOnly,
@@ -208,26 +271,31 @@ export class HarBuilder {
     });
   }
 
-  private buildRequestHeaders(req: Request): Header[] {
+  private buildRequestHeaders(req: Request, masking: Masking): Header[] {
     var headers: Header[] = [];
 
-    for (const [headerName, headerValue] of Object.entries(req.headers)) {
+    const addHeader = (name: string, value: string) => {
+      const headerMask = masking.requestHeaderMasks[name];
+      if (headerMask) {
+        value = headerMask;
+      }
+      headers.push({
+        name,
+        value,
+      });
+    };
+
+    for (let [headerName, headerValue] of Object.entries(req.headers)) {
       if (!headerValue) {
         continue;
       }
 
       if (Array.isArray(headerValue)) {
-        for (const value of headerValue) {
-          headers.push({
-            name: headerName,
-            value: value,
-          });
+        for (let value of headerValue) {
+          addHeader(headerName, value);
         }
       } else {
-        headers.push({
-          name: headerName,
-          value: headerValue.toString(),
-        });
+        addHeader(headerName, headerValue);
       }
     }
 
@@ -266,8 +334,20 @@ export class HarBuilder {
     return Buffer.byteLength(rawHeaders, "utf-8");
   }
 
-  private buildResponseHeaders(res: Response): Header[] {
+  private buildResponseHeaders(res: Response, masking: Masking): Header[] {
     var headers: Header[] = [];
+
+    const addHeader = (name: string, value: string) => {
+      const headerMask = masking.responseHeaderMasks[name];
+      if (headerMask) {
+        value = headerMask;
+      }
+      headers.push({
+        name,
+        value,
+      });
+    };
+
     res.getHeaderNames().forEach((headerName) => {
       const value = res.getHeader(headerName);
 
@@ -277,16 +357,10 @@ export class HarBuilder {
 
       if (Array.isArray(value)) {
         for (const val of value) {
-          headers.push({
-            name: headerName,
-            value: val,
-          });
+          addHeader(headerName, val);
         }
       } else {
-        headers.push({
-          name: headerName,
-          value: value.toString(),
-        });
+        addHeader(headerName, value.toString());
       }
     });
 
@@ -297,7 +371,8 @@ export class HarBuilder {
 
   private buildResponseContent(
     res: Response,
-    reqResWriter: RequestResponseWriter
+    reqResWriter: RequestResponseWriter,
+    masking: Masking
   ): Content {
     const content: Content = {
       size: -1,
@@ -308,7 +383,19 @@ export class HarBuilder {
 
     if (resBuf !== null) {
       if (resBuf.length > 0) {
-        content.text = resBuf.toString("utf8");
+        let bodyStr = resBuf.toString("utf-8");
+        try {
+          bodyStr = maskBodyRegex(
+            bodyStr,
+            content.mimeType,
+            masking.responseFieldMasksString,
+            masking.responseFieldMasksNumber
+          );
+        } catch (e) {
+          // TODO: log error
+        }
+
+        content.text = bodyStr;
         content.size = resBuf.length;
       }
     } else {
@@ -319,27 +406,28 @@ export class HarBuilder {
     return content;
   }
 
-  private buildQueryString(urlStr: string): QueryString[] {
+  private buildQueryString(urlStr: string, masking: Masking): QueryString[] {
     const queryObj = url.parse(urlStr, true).query;
     const queryString: QueryString[] = [];
+
+    const addQueryParam = (name: string, value: string) => {
+      const queryMask = masking.queryStringMasks[name];
+      if (queryMask) {
+        value = queryMask;
+      }
+      queryString.push({
+        name,
+        value,
+      });
+    };
+
     Object.entries(queryObj).forEach(([name, value]) => {
-      if (value === undefined) {
-        queryString.push({
-          name: name,
-          value: "",
-        });
-      } else if (Array.isArray(value)) {
-        queryString.concat(
-          value.map((val) => ({
-            name: name,
-            value: val,
-          }))
-        );
+      if (Array.isArray(value)) {
+        for (const val of value) {
+          addQueryParam(name, val);
+        }
       } else {
-        queryString.push({
-          name,
-          value,
-        });
+        addQueryParam(name, value ?? "");
       }
     });
     return queryString;
