@@ -3,6 +3,7 @@ import { default as request, default as supertest } from "supertest";
 import { setTimeNow, setTimeSince } from "../../src/time";
 
 import { GRPCClient } from "../../src/transport";
+import { Masking } from "../../src/controller";
 import { SpeakeasySDK } from "../../src/speakeasy";
 import fs from "fs";
 import { setMaxCaptureSize } from "../../src/requestresponsewriter";
@@ -28,6 +29,15 @@ interface Args {
   response_status: number;
   response_body: string;
   response_headers: Header[];
+  query_string_masks: Record<string, string>;
+  request_header_masks: Record<string, string>;
+  request_cookie_masks: Record<string, string>;
+  request_field_masks_string: Record<string, string>;
+  request_field_masks_number: Record<string, string>;
+  response_header_masks: Record<string, string>;
+  response_cookie_masks: Record<string, string>;
+  response_field_masks_string: Record<string, string>;
+  response_field_masks_number: Record<string, string>;
 }
 
 interface Test {
@@ -73,12 +83,7 @@ describe("Test Suite", () => {
       mockGRPCClient
     );
 
-    const app = createSimpleExpressApp(
-      speakeasy,
-      args.response_status,
-      args.response_body,
-      args.response_headers
-    );
+    const app = createSimpleExpressApp(speakeasy, args);
 
     setMaxCaptureSize(fields.max_capture_size);
 
@@ -143,34 +148,126 @@ describe("Test Suite", () => {
   });
 });
 
-function createSimpleExpressApp(
-  speakeasy: SpeakeasySDK,
-  status: number,
-  resBody: string,
-  resHeaders?: Header[]
-): Express {
+function createSimpleExpressApp(speakeasy: SpeakeasySDK, args: Args): Express {
   const app = express();
   app.disable("x-powered-by");
   app.set("etag", false);
   app.use(speakeasy.expressMiddleware());
   app.all("*", (req, res) => {
-    if (status > 0) {
-      res.status(status);
-    }
+    try {
+      const ctrl = req.controller;
 
-    if (resHeaders) {
-      for (const header of resHeaders) {
-        res.set(
-          header.key,
-          header.values.length == 1 ? header.values[0] : header.values
-        );
+      if (args.query_string_masks) {
+        for (const key in args.query_string_masks) {
+          ctrl.setMaskingOpts(
+            Masking.withQueryStringMask([key], args.query_string_masks[key])
+          );
+        }
       }
-    }
 
-    if (resBody) {
-      res.send(resBody);
-    } else {
-      res.end();
+      if (args.request_header_masks) {
+        for (const key in args.request_header_masks) {
+          ctrl.setMaskingOpts(
+            Masking.withRequestHeaderMask([key], args.request_header_masks[key])
+          );
+        }
+      }
+
+      if (args.request_cookie_masks) {
+        for (const key in args.request_cookie_masks) {
+          ctrl.setMaskingOpts(
+            Masking.withRequestCookieMask([key], args.request_cookie_masks[key])
+          );
+        }
+      }
+
+      if (args.request_field_masks_string) {
+        for (const key in args.request_field_masks_string) {
+          ctrl.setMaskingOpts(
+            Masking.withRequestFieldMaskString(
+              [key],
+              args.request_field_masks_string[key]
+            )
+          );
+        }
+      }
+
+      if (args.request_field_masks_number) {
+        for (const key in args.request_field_masks_number) {
+          ctrl.setMaskingOpts(
+            Masking.withRequestFieldMaskNumber(
+              [key],
+              args.request_field_masks_number[key]
+            )
+          );
+        }
+      }
+
+      if (args.response_header_masks) {
+        for (const key in args.response_header_masks) {
+          ctrl.setMaskingOpts(
+            Masking.withResponseHeaderMask(
+              [key],
+              args.response_header_masks[key]
+            )
+          );
+        }
+      }
+
+      if (args.response_cookie_masks) {
+        for (const key in args.response_cookie_masks) {
+          ctrl.setMaskingOpts(
+            Masking.withResponseCookieMask(
+              [key],
+              args.response_cookie_masks[key]
+            )
+          );
+        }
+      }
+
+      if (args.response_field_masks_string) {
+        for (const key in args.response_field_masks_string) {
+          ctrl.setMaskingOpts(
+            Masking.withResponseFieldMaskString(
+              [key],
+              args.response_field_masks_string[key]
+            )
+          );
+        }
+      }
+
+      if (args.response_field_masks_number) {
+        for (const key in args.response_field_masks_number) {
+          ctrl.setMaskingOpts(
+            Masking.withResponseFieldMaskNumber(
+              [key],
+              args.response_field_masks_number[key]
+            )
+          );
+        }
+      }
+
+      if (args.response_status > 0) {
+        res.status(args.response_status);
+      }
+
+      if (args.response_headers) {
+        for (const header of args.response_headers) {
+          res.set(
+            header.key,
+            header.values.length == 1 ? header.values[0] : header.values
+          );
+        }
+      }
+
+      if (args.response_body) {
+        res.send(args.response_body);
+      } else {
+        res.end();
+      }
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   });
   return app;

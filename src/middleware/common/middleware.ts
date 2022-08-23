@@ -37,15 +37,21 @@ export function expressCompatibleMiddleware(
           pathHint = controller.getPathHint();
         }
 
-        const har = HarBuilder.populate(
-          req,
-          res,
-          reqResWriter,
-          startTime,
-          speakeasy.port
-        );
+        try {
+          const har = HarBuilder.populate(
+            req,
+            res,
+            reqResWriter,
+            startTime,
+            speakeasy.port,
+            controller.getMasking()
+          );
 
-        speakeasy.send(har.build(), pathHint, controller.getCustomerID());
+          speakeasy.send(har.build(), pathHint, controller.getCustomerID());
+        } catch (e) {
+          // TODO: log error properly
+          console.error(e);
+        }
       }
     });
 

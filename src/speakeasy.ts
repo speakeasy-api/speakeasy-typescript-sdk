@@ -3,7 +3,7 @@ import type { RequestHandler } from "express";
 import { expressMiddleware as eMiddleware } from "./middleware/express/middleware";
 import { nestJSMiddleware as nMiddleware } from "./middleware/nestjs/middleware";
 
-export const speakeasyVersion = "1.1.3";
+export const speakeasyVersion = "1.2.0";
 export const sdkName = "speakeasy-typescript-sdk";
 
 let speakeasyInstance: SpeakeasySDK | null = null;

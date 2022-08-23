@@ -100,17 +100,28 @@ import express from "express";
 
 const app = express();
 
-// Configure a speakeasy SDK instance
-const cfg: Config = {
-  apiKey: "YOUR API KEY HERE",			// retrieve from Speakeasy API dashboard.
-  apiID: "YOUR API ID HERE", 			// custom Api ID to associate captured requests with.
-  versionID: "YOUR VERSION ID HERE",	// custom Version ID to associate captured requests 
-  port: 3000,							// The port number your express app is listening on (required to build full URLs on non-standard ports)
-};
-const sdk = new SpeakeasySDK(cfg);
+// Configure a new instance of the SDK for the store API
+const storeSDK = new SpeakeasySDK({
+  apiKey: "YOUR API KEY HERE",			// retrieved from Speakeasy API dashboard.
+  apiID: "store_api", 			        // this is an ID you provide that you would like to associate captured requests with.
+  versionID: "1.0.0",               // this is a Version you provide that you would like to associate captured requests with.
+  port: 3000,							          // The port number your express app is listening on (required to build full URLs on non-standard ports)
+});
 
-// Add the speakeasy middleware to your express app/router
-app.use(sdk.expressMiddleware());
+// Configure a new instance of the SDK for the product AP
+const productSDK = new SpeakeasySDK({
+  apiKey: "YOUR API KEY HERE",			// retrieved from Speakeasy API dashboard.
+  apiID: "product_api", 			      // this is an ID you provide that you would like to associate captured requests with.
+  versionID: "1.0.0",               // this is a Version you provide that you would like to associate captured requests with.
+  port: 3000,							          // The port number your express app is listening on (required to build full URLs on non-standard ports)
+});
+
+// The different instances of the SDK (with differnt IDs or even versions assigned) can be used to associate requests with different APIs and Versions.
+const storeRouter = app.route("/store");
+storeRouter.use(storeSDK.expressMiddleware());
+
+const productsRouter = app.route("/products");
+productsRouter.use(productSDK.expressMiddleware());
 
 // Rest of your express app setup code
 ```
@@ -252,9 +263,7 @@ Create a file called `expressmonkeypatch.ts` or similar and import it into your 
 
 ## Capturing Customer IDs
 
-To help associate requests with customers/users of your APIs you can provide a customer ID per request handler:
-
-
+To help associate requests with customers/users of your APIs you can provide a customer ID per request handler:  
 
 ```typescript
 const app = express();
@@ -268,3 +277,63 @@ app.all("/", (req, res) => {
 ```
 
 Note: This is not required, but is highly recommended. By setting a customer ID you can easily associate requests with your customers/users in the Speakeasy Dashboard, powering filters in the [Request Viewer](https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer-coming-soon).
+
+## Masking sensitive data
+
+Speakeasy can mask sensitive data in the query string parameters, headers, cookies and request/response bodies captured by the SDK. This is useful for maintaining sensitive data isolation, and retaining control over the data that is captured.
+
+Using the `Advanced Configuration` section above you can completely ignore certain routes by not assigning the middleware to their router, causing the SDK to not capture any requests to that router.
+
+But if you would like to be more selective you can mask certain sensitive data using our middleware controller allowing you to mask fields as needed in different handlers:
+
+```typescript
+import { Masking } from '@speakeasy-api/speakeasy-typescript-sdk';
+
+const app = express();
+app.use(speakeasy.expressMiddleware());
+app.all("/", (req, res) => {
+	ctrl := req.controller;
+	ctrl.setMaskingOpts(Masking.withRequestHeaderMask("authorization")) // Mask the authorization header in the request
+	
+	// the rest of your handlers code
+}
+```
+
+The `Masking` function takes a number of different options to mask sensitive data in the request:
+
+* `Masking.withQueryStringMask` - **withQueryStringMask** will mask the specified query strings with an optional mask string.
+* `Masking.withRequestHeaderMask` - **withRequestHeaderMask** will mask the specified request headers with an optional mask string.
+* `Masking.withResponseHeaderMask` - **withResponseHeaderMask** will mask the specified response headers with an optional mask string.
+* `Masking.withRequestCookieMask` - **withRequestCookieMask** will mask the specified request cookies with an optional mask string.
+* `Masking.withResponseCookieMask` - **withResponseCookieMask** will mask the specified response cookies with an optional mask string.
+* `Masking.withRequestFieldMaskString` - **withRequestFieldMaskString** will mask the specified request body fields with an optional mask. Supports string fields only. Matches using regex.
+* `Masking.withRequestFieldMaskNumber` - **withRequestFieldMaskNumber** will mask the specified request body fields with an optional mask. Supports number fields only. Matches using regex.
+* `Masking.withResponseFieldMaskString` - **withResponseFieldMaskString** will mask the specified response body fields with an optional mask. Supports string fields only. Matches using regex.
+* `Masking.withResponseFieldMaskNumber` - **withResponseFieldMaskNumber** will mask the specified response body fields with an optional mask. Supports number fields only. Matches using regex.
+
+Masking can also be done more globally on all routes or a selection of routes by taking advantage of middleware. Here is an example:
+
+```typescript
+import speakeasy, { Config, Masking } from "@speakeasy-api/speakeasy-typescript-sdk";
+import express from "express";
+
+const app = express();
+
+// Configure the global speakeasy SDK instance
+const cfg: Config = {
+  apiKey: "YOUR API KEY HERE",			// retrieve from Speakeasy API dashboard.
+  apiID: "YOUR API ID HERE", 			// custom Api ID to associate captured requests with.
+  versionID: "YOUR VERSION ID HERE",	// custom Version ID to associate captured requests 
+  port: 3000,							// The port number your express app is listening on (required to build full URLs on non-standard ports)
+};
+speakeasy.configure(cfg);
+
+// Add the speakeasy middleware to your express app
+app.use(speakeasy.expressMiddleware());
+app.use((req: Request, res: Response, next: NextFunction) => {
+  	// Mask the authorization header in the request for all requests served by this middleware
+		ctrl := req.controller;
+		ctrl.setMaskingOpts(Masking.withRequestHeaderMask("authorization"))
+    next();
+});
+```
