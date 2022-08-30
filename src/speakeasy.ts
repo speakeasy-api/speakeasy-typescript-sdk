@@ -1,3 +1,4 @@
+import { EmbedAccessTokenRequest } from "@speakeasy-api/speakeasy-schemas/registry/embedaccesstoken/embedaccesstoken_pb";
 import { GRPCClient } from "./transport";
 import type { RequestHandler } from "express";
 import { expressMiddleware as eMiddleware } from "./middleware/express/middleware";
@@ -58,6 +59,10 @@ export class SpeakeasySDK {
   public send(har: string, pathHint: string, customerID: string) {
     this.grpcClient.send(har, pathHint, customerID);
   }
+
+  public getEmbedAccessToken(req: EmbedAccessTokenRequest): Promise<string> {
+    return this.grpcClient.getEmbedAccessToken(req);
+  }
 }
 
 export function configure(config: Config): void {
@@ -78,6 +83,16 @@ export function nestJSMiddleware(): RequestHandler {
   }
 
   return speakeasyInstance.nestJSMiddleware();
+}
+
+export function getEmbedAccessToken(
+  req: EmbedAccessTokenRequest
+): Promise<string> {
+  if (!speakeasyInstance) {
+    throw new Error("speakeasy is not configured");
+  }
+
+  return speakeasyInstance.getEmbedAccessToken(req);
 }
 
 const maxIDSize = 128;

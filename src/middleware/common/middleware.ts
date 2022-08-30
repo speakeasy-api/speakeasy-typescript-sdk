@@ -24,7 +24,7 @@ export function expressCompatibleMiddleware(
 
     const reqResWriter = new RequestResponseWriter(req, res);
 
-    const controller = new MiddlewareController();
+    const controller = new MiddlewareController(speakeasy);
 
     res.on("finish", () => {
       reqResWriter.end();
