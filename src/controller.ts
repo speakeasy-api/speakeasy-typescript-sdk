@@ -1,9 +1,16 @@
+import { SpeakeasySDK } from "./speakeasy";
+
 type MaskingOption = (m: Masking) => void;
 
 export class MiddlewareController {
+  private sdkInstance: SpeakeasySDK = null;
   private pathHint: string = "";
   private customerID: string = "";
   private masking: Masking = new Masking();
+
+  public constructor(sdkInstance: SpeakeasySDK | null) {
+    this.sdkInstance = sdkInstance;
+  }
 
   public getPathHint(): string {
     return this.pathHint;
@@ -27,6 +34,10 @@ export class MiddlewareController {
 
   public getMasking(): Masking {
     return this.masking;
+  }
+
+  public getSDKInstance(): SpeakeasySDK {
+    return this.sdkInstance;
   }
 }
 

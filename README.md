@@ -337,3 +337,49 @@ app.use((req: Request, res: Response, next: NextFunction) => {
     next();
 });
 ```
+
+## Embedded Request Viewer Access Tokens
+
+The Speakeasy SDK can generate access tokens for the [Embedded Request Viewer](https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer/embedded-request-viewer) that can be used to view requests captured by the SDK.
+
+For documentation on how to configure filters, find that [HERE](https://docs.speakeasyapi.dev/speakeasy-user-guide/request-viewer/embedded-request-viewer).
+
+Below are some examples on how to generate access tokens:
+
+```typescript
+import { EmbedAccessTokenRequest } from "@speakeasy-api/speakeasy-schemas/registry/embedaccesstoken/embedaccesstoken_pb";
+
+// If the SDK is configured as a global instance, an access token can be generated using the `generateAccessToken` function on the speakeasy package.
+const req = new EmbedAccessTokenRequest();
+const filter = new EmbedAccessTokenRequest.Filter();
+filter.setKey("customer_id");
+filter.setOperator("=");
+filter.setValue("a-customer-id");
+
+req.setFiltersList([filter]);
+const accessToken = await speakeasy.getEmbedAccessToken(req);
+
+// If you have followed the `Advanced Configuration` section above you can also generate an access token using the `GenerateAccessToken` function on the sdk instance.
+const req = new EmbedAccessTokenRequest();
+const filter = new EmbedAccessTokenRequest.Filter();
+filter.setKey("customer_id");
+filter.setOperator("=");
+filter.setValue("a-customer-id");
+
+req.setFiltersList([filter]);
+const accessToken = await storeSDK.getEmbedAccessToken(req);
+
+// Or finally if you have a handler that you would like to generate an access token from, you can get the SDK instance for that handler from the middleware controller and use the `GetEmbedAccessToken` function it.
+app.all("/", (req, res) => {
+  const req = new EmbedAccessTokenRequest();
+  const filter = new EmbedAccessTokenRequest.Filter();
+  filter.setKey("customer_id");
+  filter.setOperator("=");
+  filter.setValue("a-customer-id");
+
+  req.setFiltersList([filter]);
+  const accessToken = await req.controller.getSDKInstance().getEmbedAccessToken(req);
+	
+	// the rest of your handlers code
+});
+```

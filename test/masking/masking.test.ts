@@ -88,7 +88,7 @@ describe("Masking Configuration", () => {
     ];
 
     test.each(tests)("$name", ({ name, args, wantQueryStringMasks }) => {
-      const controller = new MiddlewareController();
+      const controller = new MiddlewareController(null);
       controller.setMaskingOpts(
         Masking.withQueryStringMask(args.keys, ...args.masks)
       );
@@ -181,7 +181,7 @@ describe("Masking Configuration", () => {
     ];
 
     test.each(tests)("$name", ({ name, args, wantRequestCookieMasks }) => {
-      const controller = new MiddlewareController();
+      const controller = new MiddlewareController(null);
       controller.setMaskingOpts(
         Masking.withRequestCookieMask(args.keys, ...args.masks)
       );
