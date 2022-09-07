@@ -37,10 +37,14 @@ const app = express();
 
 // Configure the global speakeasy SDK instance
 const cfg: Config = {
-  apiKey: "YOUR API KEY HERE",			// retrieve from Speakeasy API dashboard.
-  apiID: "YOUR API ID HERE", 			// custom Api ID to associate captured requests with.
-  versionID: "YOUR VERSION ID HERE",	// custom Version ID to associate captured requests 
-  port: 3000,							// The port number your express app is listening on (required to build full URLs on non-standard ports)
+  apiKey: "YOUR API KEY HERE",       // retrieve from Speakeasy API dashboard.
+  apiID: "YOUR API ID HERE",         // enter a name that you'd like to associate captured requests with.
+        // This name will show up in the Speakeasy dashboard. e.g. "PetStore" might be a good ApiID for a Pet Store's API.
+        // No spaces allowed.
+  versionID: "YOUR VERSION ID HERE", // enter a version that you would like to associate captured requests with.
+        // The combination of ApiID (name) and VersionID will uniquely identify your requests in the Speakeasy Dashboard.
+        // e.g. "v1.0.0". You can have multiple versions for the same ApiID (if running multiple versions of your API)
+  port: 3000,                        // The port number your express app is listening on (required to build full URLs on non-standard ports)
 };
 speakeasy.configure(cfg);
 
@@ -70,10 +74,14 @@ export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
     // Configure the global speakeasy SDK instance
 	const cfg: Config = {
-		apiKey: "YOUR API KEY HERE",			// retrieve from Speakeasy API dashboard.
-		apiID: "YOUR API ID HERE", 			// custom Api ID to associate captured requests with.
-		versionID: "YOUR VERSION ID HERE",	// custom Version ID to associate captured requests 
-		port: 3000,							// The port number your express app is listening on (required to build full URLs on non-standard ports)
+		apiKey: "YOUR API KEY HERE",		// retrieve from Speakeasy API dashboard.
+		apiID: "YOUR API ID HERE", 		// enter a name that you'd like to associate captured requests with.
+        // This name will show up in the Speakeasy dashboard. e.g. "PetStore" might be a good ApiID for a Pet Store's API.
+        // No spaces allowed.
+		versionID: "YOUR VERSION ID HERE",	// enter a version that you would like to associate captured requests with.
+        // The combination of ApiID (name) and VersionID will uniquely identify your requests in the Speakeasy Dashboard.
+        // e.g. "v1.0.0". You can have multiple versions for the same ApiID (if running multiple versions of your API)
+		port: 3000,				// The port number your express app is listening on (required to build full URLs on non-standard ports)
 	};
 	speakeasy.configure(cfg);
 
