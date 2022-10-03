@@ -14,6 +14,8 @@ import { IngestRequest } from "@speakeasy-api/speakeasy-schemas/registry/ingest/
 import { IngestServiceClient } from "@speakeasy-api/speakeasy-schemas/registry/ingest/ingest_grpc_pb";
 import { Message } from "google-protobuf";
 
+const grpcDeadline = getRPCDeadline(1000); // 1 Second deadline
+
 export class GRPCClient {
   private ingestClient: Promisified<IngestServiceClient>;
   private embedClient: Promisified<EmbedAccessTokenServiceClient>;
@@ -56,11 +58,13 @@ export class GRPCClient {
     request.setPathHint(pathHint);
     request.setCustomerId(customerID);
 
-    this.ingestClient.ingest(request, metadata).catch((err) => {
-      if (err) {
-        console.error(err); // TODO log error with a provided logger?
-      }
-    });
+    this.ingestClient
+      .ingest(request, metadata, { deadline: grpcDeadline })
+      .catch((err) => {
+        if (err) {
+          console.error(err); // TODO log error with a provided logger?
+        }
+      });
   }
 
   public async getEmbedAccessToken(
@@ -72,6 +76,10 @@ export class GRPCClient {
     const res = await this.embedClient.get(req, metadata);
     return res.getAccesstoken();
   }
+}
+
+function getRPCDeadline(deadline: number): Date {
+  return new Date(Date.now() + deadline);
 }
 
 type OriginalCall<T, U> = (

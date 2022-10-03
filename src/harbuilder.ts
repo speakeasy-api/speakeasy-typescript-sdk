@@ -15,6 +15,7 @@ import { RequestResponseWriter } from "./requestresponsewriter";
 import Timestamp from "timestamp-nano";
 import cookie from "cookie";
 import { maskBodyRegex } from "./bodymasking";
+import { resolveProxyHeaders } from "./proxy";
 import setCookie from "set-cookie-parser";
 import { speakeasyVersion } from "./speakeasy";
 import url from "url";
@@ -58,9 +59,11 @@ export class HarBuilder {
     port: number,
     masking: Masking
   ): HarBuilder {
-    const host = req.get("host") ?? "";
+    const resolveURLInfo = resolveProxyHeaders(req);
 
-    const fullOriginalURL = `${req.protocol}://${host}${
+    const host = resolveURLInfo.host;
+
+    const fullOriginalURL = `${resolveURLInfo.scheme}://${host}${
       !host.includes(":") && port != 80 && port != 443 ? `:${port}` : ""
     }${req.originalUrl}`;
 
