@@ -116,7 +116,8 @@ describe("Test Suite", () => {
 
     for (const header of args.headers) {
       for (const value of header.values) {
-        r = r.set(header.key, value);
+        // Currently this will overwrite any existing headers and doesn't support multiple headers with the same name
+        r.set(header.key, value);
       }
     }
 
@@ -253,7 +254,7 @@ function createSimpleExpressApp(speakeasy: SpeakeasySDK, args: Args): Express {
 
       if (args.response_headers) {
         for (const header of args.response_headers) {
-          res.set(
+          res.append(
             header.key,
             header.values.length == 1 ? header.values[0] : header.values
           );
