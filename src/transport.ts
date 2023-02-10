@@ -3,7 +3,7 @@ import {CallOptions, Client, ClientUnaryCall, Metadata, ServiceError} from "@grp
 
 import {EmbedAccessTokenRequest} from "@speakeasy-api/speakeasy-schemas/registry/embedaccesstoken/embedaccesstoken_pb";
 import {
-  EmbedAccessTokenServiceClient
+    EmbedAccessTokenServiceClient
 } from "@speakeasy-api/speakeasy-schemas/registry/embedaccesstoken/embedaccesstoken_grpc_pb";
 import {IngestRequest} from "@speakeasy-api/speakeasy-schemas/registry/ingest/ingest_pb";
 import {IngestServiceClient} from "@speakeasy-api/speakeasy-schemas/registry/ingest/ingest_grpc_pb";
