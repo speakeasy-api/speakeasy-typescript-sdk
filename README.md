@@ -8,7 +8,7 @@ The Speakeasy Typescript SDK for evaluating API requests/responses.
 
 ## Requirements
 
-Supported frameworks: 
+Supported frameworks:
 
 * Express
 * NestJs
@@ -100,7 +100,7 @@ learn more.
 
 The Speakeasy SDK provides both a global and per Api configuration option. If you want to use the SDK to track multiple Apis or Versions from the same service you can configure individual instances of the SDK.
 
-#### Express  
+#### Express
 
 ```typescript
 import { Config, SpeakeasySDK } from "@speakeasy-api/speakeasy-typescript-sdk";
@@ -110,18 +110,18 @@ const app = express();
 
 // Configure a new instance of the SDK for the store API
 const storeSDK = new SpeakeasySDK({
-  apiKey: "YOUR API KEY HERE",			// retrieved from Speakeasy API dashboard.
-  apiID: "store_api", 			        // this is an ID you provide that you would like to associate captured requests with.
+  apiKey: "YOUR API KEY HERE",      // retrieved from Speakeasy API dashboard.
+  apiID: "store_api",               // this is an ID you provide that you would like to associate captured requests with.
   versionID: "1.0.0",               // this is a Version you provide that you would like to associate captured requests with.
-  port: 3000,							          // The port number your express app is listening on (required to build full URLs on non-standard ports)
+  port: 3000,                       // The port number your express app is listening on (required to build full URLs on non-standard ports)
 });
 
 // Configure a new instance of the SDK for the product AP
 const productSDK = new SpeakeasySDK({
-  apiKey: "YOUR API KEY HERE",			// retrieved from Speakeasy API dashboard.
-  apiID: "product_api", 			      // this is an ID you provide that you would like to associate captured requests with.
+  apiKey: "YOUR API KEY HERE",      // retrieved from Speakeasy API dashboard.
+  apiID: "product_api",             // this is an ID you provide that you would like to associate captured requests with.
   versionID: "1.0.0",               // this is a Version you provide that you would like to associate captured requests with.
-  port: 3000,							          // The port number your express app is listening on (required to build full URLs on non-standard ports)
+  port: 3000,                       // The port number your express app is listening on (required to build full URLs on non-standard ports)
 });
 
 // The different instances of the SDK (with differnt IDs or even versions assigned) can be used to associate requests with different APIs and Versions.
@@ -134,7 +134,7 @@ productsRouter.use(productSDK.expressMiddleware());
 // Rest of your express app setup code
 ```
 
-##### NestJS  
+##### NestJS
 
 ```typescript
 import { Config, SpeakeasySDK } from '@speakeasy-api/speakeasy-typescript-sdk';
