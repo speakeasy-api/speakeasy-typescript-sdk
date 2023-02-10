@@ -14,7 +14,7 @@ import { IngestRequest } from "@speakeasy-api/speakeasy-schemas/registry/ingest/
 import { IngestServiceClient } from "@speakeasy-api/speakeasy-schemas/registry/ingest/ingest_grpc_pb";
 import { Message } from "google-protobuf";
 
-const grpcDeadline = getRPCDeadline(1000); // 1 Second deadline
+const grpcDeadline = () => getRPCDeadline(1000); // 1 Second deadline
 
 export class GRPCClient {
   private ingestClient: Promisified<IngestServiceClient>;
@@ -59,7 +59,7 @@ export class GRPCClient {
     request.setCustomerId(customerID);
 
     this.ingestClient
-      .ingest(request, metadata, { deadline: grpcDeadline })
+      .ingest(request, metadata, { deadline: grpcDeadline() })
       .catch((err) => {
         if (err) {
           console.error(err); // TODO log error with a provided logger?
